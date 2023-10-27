@@ -1,75 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-
-namespace CarClass
+﻿namespace CarClass
 {
     internal class Auto
     {
-        private readonly string? number; // Номер
-        private float fuel; // Количество бензина в баке
-        private readonly float flow; //  Номинальный расход топлива
-        private float fact_flow; // Фактический расход топлива
-        private int mileage; // Пробег
-        private readonly float max_fuel; // Макс. бензина в баке
+        protected readonly string? number; // Номер
+        protected float fuel; // Количество бензина в баке
+        protected readonly float flow; //  Номинальный расход топлива
+        private float factFlow; // Фактический расход топлива
+        protected int mileage; // Пробег
+        protected readonly float maxFuel; // Макс. бензина в баке
         private bool broken; // Cломана 
         private int speed; // Скорость
-        private readonly int max_speed; // Макс. скорость
-        private readonly float dist; // Дистанция
-        private float x_cord; // Текущая позиция на плоскости/дороге
-        private readonly byte direction; // Направление машины
+        protected readonly int maxSpeed; // Макс. скорость
+        protected readonly float dist; // Дистанция
+        private float xCord; // Текущая позиция на плоскости/дороге
+        protected readonly byte direction; // Направление машины
         private bool reached; // Доехали ли машина
 
-        public Auto (string number, float fuel, float flow, int mileage, float max_fuel, float dist, int max_speed, float x_cord, byte direction)
+        public Auto (string number, float fuel, float flow, int mileage, float maxFuel, float dist, int maxSpeed, byte direction)
         {
             this.number = number;
             this.fuel = fuel;
             this.flow = flow;
             this.mileage = mileage;
-            this.max_fuel = max_fuel;
+            this.maxFuel = maxFuel;
             this.dist = dist;
-            this.max_speed = max_speed;
-            this.x_cord = x_cord;
+            this.maxSpeed = maxSpeed;
             this.direction = direction;
+            xCord = direction == 1 ? 0 : dist;
             broken = false;
             speed = 0;
-            fact_flow = flow;
+            factFlow = flow;
             reached = false;
         }
 
         // Вывод информации
-        public void Out()
+        public virtual void Out()
         {
             Console.WriteLine($"Номер: {number}\n" +
                 $"Топливо: {fuel}\n" +
-                $"Расход топлива на 100 км: {fact_flow}\n" +
+                $"Расход топлива на 100 км: {factFlow}\n" +
                 $"Пробег: {mileage}\n" +
-                $"Скорость: {speed}/{max_speed}\n" +
-                $"X: {x_cord}\n");
+                $"Скорость: {speed}/{maxSpeed}\n" +
+                $"X: {xCord}\n");
 
             if (broken) Console.WriteLine("Вы разбились\n");
             if (direction == 1)
             {
-                if (x_cord < dist && !broken) Console.WriteLine($"Требуется проехать: {dist-x_cord}");
-                if (x_cord >= dist)
+                if (xCord < dist && !broken) Console.WriteLine($"Требуется проехать: {dist-xCord}");
+                if (xCord >= dist)
                 {
                     Console.WriteLine("Вы доехали\n");
-                    CarIsReached();
+                    reached = true;
                 }
-                else if (Cost(dist - x_cord) > fuel && !broken) Console.WriteLine($"Нужно заправиться на {Math.Round(Math.Ceiling(Cost(dist - x_cord) + 0.5) - fuel, 2)} л. и более\n");
+                else if (Cost(dist - xCord) > fuel && !broken) Console.WriteLine($"Нужно заправиться на {Math.Round(Math.Ceiling(Cost(dist - xCord) + 0.5) - fuel, 2)} л. и более\n");
             }
             else if (direction == 0)
             {
-                if (x_cord > 0 && !broken) Console.WriteLine($"Требуется проехать: {x_cord}");
-                if (x_cord <= 0)
+                if (xCord > 0 && !broken) Console.WriteLine($"Требуется проехать: {xCord}");
+                if (xCord <= 0)
                 {
                     Console.WriteLine("Вы доехали\n");
-                    CarIsReached();
+                    reached = true;
                 }
-                else if (Cost(x_cord) > fuel && !broken) Console.WriteLine($"Нужно заправиться на {Math.Round(Math.Ceiling(Cost(x_cord) + 0.5) - fuel, 2)} л. и более\n");
+                else if (Cost(xCord) > fuel && !broken) Console.WriteLine($"Нужно заправиться на {Math.Round(Math.Ceiling(Cost(xCord) + 0.5) - fuel, 2)} л. и более\n");
             }
 
         }
@@ -77,13 +70,13 @@ namespace CarClass
         // Запрвка бензином
         public void Refuel(float top)
         {
-            if (max_fuel >= top + fuel && top >= 0)
+            if (maxFuel >= top + fuel && top >= 0)
                 fuel += top;
-            else if (max_fuel == fuel && top > 0)
+            else if (maxFuel == fuel && top > 0)
                 ErrorAlert("Бак уже полный");
-            else if (top > max_fuel - fuel)
+            else if (top > maxFuel - fuel)
             {
-                fuel += max_fuel - fuel;
+                fuel += maxFuel - fuel;
                 WarningAlert("Бак был заполнен до конца");
             }
             else if (top < 0)
@@ -92,7 +85,7 @@ namespace CarClass
         }
 
         // Расчет требуемого бензина для поездки
-        public float Cost(float dist) => (float) Math.Round(fact_flow * (dist / 100), 2);
+        private float Cost(float interval) => (float) Math.Round(factFlow * (interval / 100), 2);
 
         // Продвижение машины
         public void Move(int km)
@@ -108,10 +101,10 @@ namespace CarClass
                     switch (direction)
                     {
                         case 0:
-                            x_cord -= km;
+                            xCord -= km;
                             break;
                         case 1:
-                            x_cord += km;
+                            xCord += km;
                             break;
                     }
 
@@ -130,10 +123,10 @@ namespace CarClass
         // Проверка столкновений машин
         public void CheckAccident(Auto auto)
         {
-            float distanceBetweenCars = auto.GetX()-x_cord;
+            float distanceBetweenCars = auto.GetX()-xCord;
             if (distanceBetweenCars > 0) Console.WriteLine($"Расстояние между машинами: {distanceBetweenCars}\n");
             if (distanceBetweenCars <= 0 && auto.GetX() != dist 
-                    && x_cord != 0 
+                    && xCord != 0 
                     && !auto.IsReached() 
                     && !IsReached() )
             {
@@ -144,17 +137,17 @@ namespace CarClass
         }
 
         // Установка скорости
-        public void SetSpeed(int speed)
+        public void SetSpeed(int speedTo)
         {
             if (!broken)
             {
-                if (speed >= 0 && speed <= max_speed)
+                if (speedTo >= 0 && speedTo <= maxSpeed)
                 {
-                    this.speed = speed;
+                    speed = speedTo;
                     FlowMultiplier();
                 }
-                else if (speed < 0) ErrorAlert("Скорость не может быть отрицательной");
-                else if (speed > max_speed) ErrorAlert("Превышение лимита скорости");
+                else if (speedTo < 0) ErrorAlert("Скорость не может быть отрицательной");
+                else if (speedTo > maxSpeed) ErrorAlert("Превышение лимита скорости");
             }
             else
                 ErrorAlert("Машина сломана");
@@ -163,12 +156,12 @@ namespace CarClass
         // Множитель расхода
         private void FlowMultiplier()
         {
-            if (speed < 50) fact_flow = flow;
-            else if (speed >= 50 && speed < 100) fact_flow = flow * 1.1f;
-            else if (speed >= 100 && speed < 150) fact_flow = flow * 1.2f;
-            else if (speed >= 150 && speed < 200) fact_flow = flow * 1.3f;
-            else if (speed >= 200 && speed <= max_speed) fact_flow = flow * 1.4f;
-            fact_flow = (float) Math.Round(fact_flow, 2);
+            if (speed < 50) factFlow = flow;
+            else if (speed >= 50 && speed < 100) factFlow = flow * 1.1f;
+            else if (speed >= 100 && speed < 150) factFlow = flow * 1.2f;
+            else if (speed >= 150 && speed < 200) factFlow = flow * 1.3f;
+            else if (speed >= 200 && speed <= maxSpeed) factFlow = flow * 1.4f;
+            factFlow = (float) Math.Round(factFlow, 2);
         }
 
         // Вывод предупреждений
@@ -196,14 +189,12 @@ namespace CarClass
         }
 
         // Побочные методы
-        public float GetFuel() => fuel;
 
-        public float GetX() => x_cord;
+        private float GetX() => xCord;
 
-        public bool IsReached() => reached;
+        private bool IsReached() => reached;
 
         public void Accident() => broken = true;
-        private void CarIsReached() => reached = true;
 
     }
 }
