@@ -20,33 +20,36 @@
         {
             float dist = new Random().Next(200, 1000);
 
-            Auto[] cars = new Auto[4];
-            cars[0] = new Auto("А123СК", 20, 12, 17, 100, dist, 220, 1);
-            cars[1] = new Auto("Р613ЕВ", 27, 13, 438, 110, dist, 200, 0);
-            cars[2] = new Bus("О795НТ", 55, 17, 643, 170, dist, 130, 0, 11);
-            cars[3] = new Truck("М486ХУ", 94, 20, 475, 200, dist, 170, 1, 4);
+            Auto[] cars = new Auto[2];
+            cars[0] = new Bus("О795НТ", 55, 17, 643, 170, dist, 130, 1, 57);
+            cars[1] = new Truck("М486ХУ", 94, 20, 475, 200, dist, 170, 0, 4);
+
+            Console.Clear();
+            
+            WriteCars(cars);
+
+            Console.Write("\nКакой машиной управлять: ");
+            int idx = Convert.ToInt32(Console.ReadLine())-1;
 
 
             while (true)
             {
                 Console.Clear();
-
-                int idx;
-                WriteCars(cars);
-
-                Console.Write("\nКакой машиной управлять: ");
-                idx = Convert.ToInt32(Console.ReadLine())-1;
                 
-                Console.Clear();
-
+                cars[0].CheckAccident(cars[1]);
+                
                 cars[idx].Out();
                 
                 Console.WriteLine($"1. Ехать\n" +
                     $"2. Ускориться/Замедлиться\n" +
                     $"3. Заправиться\n" +
-                    $"4. Узнать расстояние между машиной" +
-                    $"5. Выбрать другую машину\n" +
-                    $"6. Выход\n");
+                    $"4. Выбрать другую машину\n" +
+                    $"5. Выход");
+                
+                if (cars[idx] is Bus) Console.WriteLine("n. Посадить пассажиров\n" +
+                                                        "m. Высадить пассажиров\n");
+                else if (cars[idx] is Truck) Console.WriteLine("m. Загрузить груз\n" +
+                                                               "m. Выгрузить груз\n");
 
 #if DEBUG
                 Console.WriteLine($"!!! DEUBG !!!\n" +
@@ -71,14 +74,16 @@
                         cars[idx].Refuel( Convert.ToSingle(Console.ReadLine()) );
                         break;
                     case "4":
+                        Console.Clear();
                         WriteCars(cars);
-                        int checkIdx = Convert.ToInt32(Console.ReadLine())-1;
-                        cars[idx].CheckAccident(cars[checkIdx]);
+                        Console.Write("\nКакой машиной управлять: ");
+                        idx = Convert.ToInt32(Console.ReadLine())-1;
                         break;
                     case "5":
-                        break;
-                    case "6":
                         return;
+                    case "n":
+                    case "m":
+                        break;
 #if DEBUG
                     case "a":
                         cars[idx].Accident();

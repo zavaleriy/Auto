@@ -5,16 +5,17 @@
         protected readonly string? number; // Номер
         protected float fuel; // Количество бензина в баке
         protected readonly float flow; //  Номинальный расход топлива
-        private float factFlow; // Фактический расход топлива
+        protected float factFlow; // Фактический расход топлива
         protected int mileage; // Пробег
         protected readonly float maxFuel; // Макс. бензина в баке
-        private bool broken; // Cломана 
-        private int speed; // Скорость
+        protected bool broken; // Cломана 
+        protected int speed; // Скорость
         protected readonly int maxSpeed; // Макс. скорость
         protected readonly float dist; // Дистанция
-        private float xCord; // Текущая позиция на плоскости/дороге
+        protected float xCord; // Текущая позиция на плоскости/дороге
         protected readonly byte direction; // Направление машины
-        private bool reached; // Доехали ли машина
+        protected bool reached; // Доехали ли машина
+        protected double time = 0; // Время за которое была преодолена дистанция
 
         public Auto (string number, float fuel, float flow, int mileage, float maxFuel, float dist, int maxSpeed, byte direction)
         {
@@ -33,14 +34,14 @@
             reached = false;
         }
 
-        // Вывод информации
+        /// Вывод информации
         public virtual void Out()
         {
             Console.WriteLine($"Номер: {number}\n" +
-                $"Топливо: {fuel}\n" +
-                $"Расход топлива на 100 км: {factFlow}\n" +
-                $"Пробег: {mileage}\n" +
-                $"Скорость: {speed}/{maxSpeed}\n" +
+                $"Топливо: {fuel}/{maxFuel} л.\n" +
+                $"Расход топлива на 100 км: {factFlow} л.\n" +
+                $"Пробег: {mileage} км.\n" +
+                $"Скорость: {speed}/{maxSpeed} км/ч\n" +
                 $"X: {xCord}\n");
 
             if (broken) Console.WriteLine("Вы разбились\n");
@@ -67,7 +68,7 @@
 
         }
 
-        // Запрвка бензином
+        /// Запрвка бензином
         public void Refuel(float top)
         {
             if (maxFuel >= top + fuel && top >= 0)
@@ -84,10 +85,10 @@
 
         }
 
-        // Расчет требуемого бензина для поездки
+        /// Расчет требуемого бензина для поездки
         private float Cost(float interval) => (float) Math.Round(factFlow * (interval / 100), 2);
 
-        // Продвижение машины
+        /// Продвижение машины
         public void Move(int km)
         {
             if (!broken && !IsReached() )
@@ -120,9 +121,12 @@
                 WarningAlert("Вы проехали всю дистанцию");
         }
 
-        // Проверка столкновений машин
+        /// Проверка столкновений машин
         public void CheckAccident(Auto auto)
         {
+            if (number == auto.number)
+                return;
+            
             float distanceBetweenCars = auto.GetX()-xCord;
             if (distanceBetweenCars > 0) Console.WriteLine($"Расстояние между машинами: {distanceBetweenCars}\n");
             if (distanceBetweenCars <= 0 && auto.GetX() != dist 
@@ -136,7 +140,7 @@
 
         }
 
-        // Установка скорости
+        /// Установка скорости
         public void SetSpeed(int speedTo)
         {
             if (!broken)
@@ -153,7 +157,7 @@
                 ErrorAlert("Машина сломана");
         }
 
-        // Множитель расхода
+        /// Множитель расхода
         private void FlowMultiplier()
         {
             if (speed < 50) factFlow = flow;
@@ -164,7 +168,7 @@
             factFlow = (float) Math.Round(factFlow, 2);
         }
 
-        // Вывод предупреждений
+        /// Вывод предупреждений
         private void WarningAlert(string message)
         {
             Console.CursorVisible = false;
@@ -177,7 +181,7 @@
             Console.CursorVisible = true;
         }
 
-        // Вывод ошибок
+        /// Вывод ошибок
         private void ErrorAlert(string message)
         {
             Console.CursorVisible = false;
@@ -189,7 +193,6 @@
         }
 
         // Побочные методы
-
         private float GetX() => xCord;
 
         private bool IsReached() => reached;
