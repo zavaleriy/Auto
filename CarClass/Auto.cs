@@ -169,7 +169,7 @@
         }
 
         /// Вывод предупреждений
-        private void WarningAlert(string message)
+        protected void WarningAlert(string message)
         {
             Console.CursorVisible = false;
             Console.BackgroundColor = ConsoleColor.DarkYellow;
@@ -182,7 +182,7 @@
         }
 
         /// Вывод ошибок
-        private void ErrorAlert(string message)
+        protected void ErrorAlert(string message)
         {
             Console.CursorVisible = false;
             Console.BackgroundColor = ConsoleColor.DarkRed;

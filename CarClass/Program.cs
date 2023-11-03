@@ -21,8 +21,8 @@
             float dist = new Random().Next(200, 1000);
 
             Auto[] cars = new Auto[2];
-            cars[0] = new Bus("О795НТ", 55, 17, 643, 170, dist, 130, 1, 57);
-            cars[1] = new Truck("М486ХУ", 94, 20, 475, 200, dist, 170, 0, 4);
+            cars[0] = new Bus("О795НТ", 55, 17, 643, 170, dist, 130, 1, 0);
+            cars[1] = new Truck("М486ХУ", 94, 20, 475, 200, dist, 170, 0, 0);
 
             Console.Clear();
             
@@ -48,7 +48,7 @@
                 
                 if (cars[idx] is Bus) Console.WriteLine("n. Посадить пассажиров\n" +
                                                         "m. Высадить пассажиров\n");
-                else if (cars[idx] is Truck) Console.WriteLine("m. Загрузить груз\n" +
+                else if (cars[idx] is Truck) Console.WriteLine("n. Загрузить груз\n" +
                                                                "m. Выгрузить груз\n");
 
 #if DEBUG
@@ -62,7 +62,7 @@
                 {
                     case "1":
                         Console.Write("Сколько проехать км: ");
-                        int km = Convert.ToInt32(Console.ReadLine());
+                        int km = Convert.ToInt32( Console.ReadLine() );
                         cars[idx].Move(km);
                         break;
                     case "2":
@@ -82,7 +82,39 @@
                     case "5":
                         return;
                     case "n":
+                        if (cars[idx] is Bus)
+                        {
+                            Bus bus = (Bus)cars[idx];
+                            
+                            Console.Write("Посадить пассажиров: ");
+                            bus.AddPassengers( Convert.ToInt32(Console.ReadLine()) );
+                        }
+                        else
+                        {
+                            Truck truck = (Truck)cars[idx];
+
+                            Console.Write("Загрузить груз: ");
+                            truck.AddLoad( Convert.ToDouble(Console.ReadLine()) );
+                        }
+                        
+                        break;
                     case "m":
+                        if (cars[idx] is Bus)
+                        {
+                            Bus bus = (Bus)cars[idx];
+                            
+                            Console.Write("Высадить пассажиров: ");
+                            bus.RemovePassengers( Convert.ToInt32(Console.ReadLine()) );
+                        }
+                        else
+                        {
+                            Truck truck = (Truck)cars[idx];
+
+                            Console.Write("Выгрузить груз: ");
+                            truck.RemoveLoad( Convert.ToDouble(Console.ReadLine()) );
+                        }
+                        
+                        
                         break;
 #if DEBUG
                     case "a":
