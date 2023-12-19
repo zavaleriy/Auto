@@ -22,29 +22,37 @@
         {
             if (weight == maxWeight)
                 WarningAlert("Грузовик полон");
-            else if (weight + load > maxWeight)
-            {
-                WarningAlert($"{Math.Abs(maxWeight - weight)} т. загружено");
-                weight += maxWeight - weight;
-            }
             else
-                weight += load;
+            {
+                if (weight + load > maxWeight)
+                {
+                    WarningAlert($"{Math.Abs(maxWeight - weight)} т. загружено");
+                    factFlow += (float) ((maxWeight - weight) * 0.17);
+                    weight += maxWeight - weight;
+                }
+                else
+                {
+                    weight += load;
+                    factFlow += (float) (load * 0.17);
+                }
+                
+                factFlow = (float) Math.Round(factFlow, 2);
+                
+            }
         }
 
         public void RemoveLoad(double load)
         {
             if (weight - load < 0)
-            {
                 ErrorAlert("Нельзя вызругизть больше груза, чем есть");
-            }
             else
             {
                 weight -= load;
-                
+                factFlow -= (float) (load * 0.17);
+                factFlow = (float) Math.Round(factFlow, 2);
             }
-                
-        }
 
+        }
 
     }
 

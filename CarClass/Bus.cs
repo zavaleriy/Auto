@@ -22,33 +22,41 @@
         {
             if (passengers == maxPassengers)
                 WarningAlert("Автобус полон");
-            else if (passengers + people > maxPassengers)
-            {
-                WarningAlert($"{maxPassengers - passengers} село в автобус");
-                passengers += maxPassengers - passengers;
-            }
+            else if (speed > 0)
+                ErrorAlert("Пассажиры не могут сесть в едущий автобус");
             else
             {
-                passengers += people;    
+                if (passengers + people > maxPassengers)
+                {
+                    WarningAlert($"{maxPassengers - passengers} село в автобус");
+                    factFlow += (maxPassengers - passengers) * 0.1f;
+                    passengers += maxPassengers - passengers;
+                }
+                else
+                {
+                    passengers += people;
+                    factFlow += people * 0.1f;
+                }
+                
+                factFlow = (float) Math.Round(factFlow, 2);
+
             }
-            
-
-
-
-
         }
 
         public void RemovePassengers(int people)
         {
             if (passengers - people < 0)
-            {
                 ErrorAlert("Нельзя высадить больше пассажиров, чем есть");
-            }
+            else if (speed > 0)
+                ErrorAlert("Пассажиры не могут выйти из едущего автобуса");
             else
+            {
                 passengers -= people;
-            
-            
-            
+
+                factFlow -= people * 0.1f;
+                factFlow = (float) Math.Round(factFlow, 2);
+            }
+
         }
         
     }

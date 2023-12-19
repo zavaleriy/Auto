@@ -15,7 +15,7 @@
         protected float xCord; // Текущая позиция на плоскости/дороге
         protected readonly byte direction; // Направление машины
         protected bool reached; // Доехали ли машина
-        protected double time = 0; // Время за которое была преодолена дистанция
+        protected decimal time = 0; // Время за которое была преодолена дистанция
 
         public Auto (string number, float fuel, float flow, int mileage, float maxFuel, float dist, int maxSpeed, byte direction)
         {
@@ -47,10 +47,11 @@
             if (broken) Console.WriteLine("Вы разбились\n");
             if (direction == 1)
             {
-                if (xCord < dist && !broken) Console.WriteLine($"Требуется проехать: {dist-xCord}");
+                if (xCord < dist && !broken) Console.WriteLine($"Требуется проехать: {dist-xCord} км");
                 if (xCord >= dist)
                 {
                     Console.WriteLine("Вы доехали\n");
+                    Console.WriteLine($"Вы преодолели дистанию за {TimeConverter(time)}\n");
                     reached = true;
                 }
                 else if (Cost(dist - xCord) > fuel && !broken) Console.WriteLine($"Нужно заправиться на {Math.Round(Math.Ceiling(Cost(dist - xCord) + 0.5) - fuel, 2)} л. и более\n");
@@ -61,6 +62,7 @@
                 if (xCord <= 0)
                 {
                     Console.WriteLine("Вы доехали\n");
+                    Console.WriteLine($"Вы преодолели дистанию за {TimeConverter(time)}\n");
                     reached = true;
                 }
                 else if (Cost(xCord) > fuel && !broken) Console.WriteLine($"Нужно заправиться на {Math.Round(Math.Ceiling(Cost(xCord) + 0.5) - fuel, 2)} л. и более\n");
@@ -98,6 +100,8 @@
                 {
                     fuel -= Cost(km);
                     fuel = (float)Math.Round(fuel, 2);
+
+                    time += Convert.ToDecimal(km) / speed;
 
                     switch (direction)
                     {
@@ -190,6 +194,16 @@
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ReadKey();
             Console.CursorVisible = true;
+        }
+
+        private string TimeConverter(decimal totalTime)
+        {
+            int hours = (int)totalTime;
+            int minutes = (int)((totalTime - hours) * 60);
+            int seconds = (int)((totalTime - hours - minutes / 60.0m) * 3600);
+
+            return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
+
         }
 
         // Побочные методы
